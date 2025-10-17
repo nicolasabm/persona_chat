@@ -5,33 +5,53 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
 
 
-BASE_MODEL_ID = "meta-llama/Llama-3.2-3B-Instruct" 
-ADAPTER_PATH = "models/llama_fine_tuned_Security_Seeker"
-
+#BASE_MODEL_ID = "meta-llama/Llama-3.2-3B-Instruct" 
+#ADAPTER_PATH = "models/llama_fine_tuned_Security_Seeker"
+MODEL_PATH = "Nicolasabm/llama3_2_3b_finetuned_complete"
 # --- FUNÇÕES DE LÓGICA (BACKEND) ---
 
 # Usa o cache do Streamlit para carregar o modelo apenas uma vez
 @st.cache_resource
-def load_model_and_tokenizer():
-    """Carrega o modelo base, o tokenizer e aplica o adaptador PEFT."""
-    st.info("Loading base model... This may take a few minutes. 🤖")
+# def load_model_and_tokenizer():
+#     """Carrega o modelo base, o tokenizer e aplica o adaptador PEFT."""
+#     st.info("Loading base model... This may take a few minutes. 🤖")
     
-    base_model = AutoModelForCausalLM.from_pretrained(
-        BASE_MODEL_ID,
+#     base_model = AutoModelForCausalLM.from_pretrained(
+#         BASE_MODEL_ID,
+#         load_in_4bit=True,
+#         dtype=torch.bfloat16,
+#         device_map="auto",
+#     )
+    
+#     tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL_ID)
+#     if tokenizer.pad_token is None:
+#         tokenizer.pad_token = tokenizer.eos_token
+        
+#     # Aplica o adaptador
+#     model = PeftModel.from_pretrained(base_model, ADAPTER_PATH)
+
+#     st.success("Model loaded successfully!")
+#     return model, tokenizer
+
+def load_model_and_tokenizer():
+    """Carrega o modelo completo já fundido e o tokenizer."""
+    st.info("Loading merged fine-tuned model... This may take a few minutes. 🤖")
+
+    model = AutoModelForCausalLM.from_pretrained(
+        MODEL_PATH,
         load_in_4bit=True,
         dtype=torch.bfloat16,
         device_map="auto",
     )
-    
-    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL_ID)
+
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-        
-    # Aplica o adaptador
-    model = PeftModel.from_pretrained(base_model, ADAPTER_PATH)
 
     st.success("Model loaded successfully!")
     return model, tokenizer
+
+
 
 def carregar_personas(filename="json/personas_fine_tuned.json"): 
     """Loading personas JSON file."""
@@ -44,7 +64,6 @@ def carregar_personas(filename="json/personas_fine_tuned.json"):
 
 
 # --- STREAMLIT APPLICATION LOGIC (FRONTEND) ---
-
 
 # Configuração da página (título, ícone)
 st.set_page_config(page_title="Persona Chatbot", page_icon="👤")
