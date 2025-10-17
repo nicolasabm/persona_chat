@@ -13,7 +13,7 @@ MODEL_PATH = "Nicolasabm/llama3_2_3b_finetuned_complete"
 # Usa o cache do Streamlit para carregar o modelo apenas uma vez
 @st.cache_resource
 # def load_model_and_tokenizer():
-#     """Carrega o modelo base, o tokenizer e aplica o adaptador PEFT."""
+#     
 #     st.info("Loading base model... This may take a few minutes. 🤖")
     
 #     base_model = AutoModelForCausalLM.from_pretrained(
@@ -27,7 +27,7 @@ MODEL_PATH = "Nicolasabm/llama3_2_3b_finetuned_complete"
 #     if tokenizer.pad_token is None:
 #         tokenizer.pad_token = tokenizer.eos_token
         
-#     # Aplica o adaptador
+#     
 #     model = PeftModel.from_pretrained(base_model, ADAPTER_PATH)
 
 #     st.success("Model loaded successfully!")
@@ -65,14 +65,14 @@ def carregar_personas(filename="json/personas_fine_tuned.json"):
 
 # --- STREAMLIT APPLICATION LOGIC (FRONTEND) ---
 
-# Configuração da página (título, ícone)
+
 st.set_page_config(page_title="Persona Chatbot", page_icon="👤")
 
 # Carrega o modelo e as personas
 model, tokenizer = load_model_and_tokenizer()
 personas = carregar_personas()
 
-# Inicializa o estado da sessão se ainda não existir
+
 if "selected_persona" not in st.session_state:
     st.session_state.selected_persona = None
 if "messages" not in st.session_state:
@@ -83,18 +83,18 @@ if st.session_state.selected_persona is None:
     st.title("Welcome to Persona Chat 🤖")
     st.write("Select a persona to start chatting.")
     
-    # Cria uma lista de nomes de personas para o selectbox
+    
     persona_names = [p['name'] for p in personas]
     
-    # Usa um formulário para a seleção, o que parece mais organizado
+    
     with st.form("persona_selector"):
         selected_name = st.selectbox("Choose a Persona:", persona_names)
         submitted = st.form_submit_button("Talk to this Persona")
         
         if submitted and selected_name:
-            # Encontra o dicionário completo da persona selecionada
+           
             st.session_state.selected_persona = next(p for p in personas if p['name'] == selected_name)
-            # Reinicia o app para ir para a tela de chat
+            
             st.rerun()
 
 # --- TELA DE CHAT ---
@@ -193,24 +193,19 @@ Persona Profile:
 - Life Story & Personality: {persona['narrative_persona']}
 """
 
-            # 2. Construa a lista de mensagens no formato que o template espera.
-            # A estrutura é uma lista de dicionários.
+         
             messages_for_template = [
                 {"role": "system", "content": system_prompt}
             ]
-            # Adiciona todo o histórico da conversa (usuário e assistente)
+            
             messages_for_template.extend(st.session_state.messages)
             
-            # 3. Use o tokenizer para aplicar o template de chat oficial do Llama 3.
-            # Isso converte a lista de mensagens em uma única string formatada corretamente.
-            # `add_generation_prompt=True` adiciona os tokens que sinalizam ao modelo que ele deve começar a gerar uma resposta.
             final_prompt_string = tokenizer.apply_chat_template(
                 messages_for_template, 
                 tokenize=False, 
                 add_generation_prompt=True
             )
-            
-            # 4. Tokenize o prompt final e gere a resposta.
+
             inputs = tokenizer(final_prompt_string, return_tensors="pt").to(model.device)
             outputs = model.generate(
                 **inputs,
