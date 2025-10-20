@@ -36,16 +36,16 @@ MODEL_PATH = "Nicolasabm/llama3_2_3b_finetuned_complete"
 def load_model_and_tokenizer():
     """Carrega o modelo completo já fundido e o tokenizer."""
     st.info("Loading merged fine-tuned model... This may take a few minutes. 🤖")
-    hf_token = st.secrets["HF_TOKEN"]
+    #hf_token = st.secrets["HF_TOKEN"]
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_PATH,
         load_in_4bit=True,
         dtype=torch.bfloat16,
         device_map="auto",
-        use_auth_token=hf_token
+        #use_auth_token=hf_token
     )
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, use_auth_token=hf_token)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
