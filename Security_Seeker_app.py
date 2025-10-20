@@ -3,8 +3,9 @@ import json
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
+from huggingface_hub import login
 
-
+login(token=st.secrets["HF_TOKEN"])
 #BASE_MODEL_ID = "meta-llama/Llama-3.2-3B-Instruct" 
 #ADAPTER_PATH = "models/llama_fine_tuned_Security_Seeker"
 MODEL_PATH = "Nicolasabm/llama3_2_3b_finetuned_complete"
