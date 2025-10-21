@@ -33,20 +33,21 @@ MODEL_PATH = "Nicolasabm/llama3_2_3b_finetuned_complete"
 
 #     st.success("Model loaded successfully!")
 #     return model, tokenizer
+
 @st.cache_resource(show_spinner=False)
 def load_model_and_tokenizer():
     """Carrega o modelo completo já fundido e o tokenizer."""
     st.info("Loading merged fine-tuned model... This may take a few minutes. 🤖")
-    #hf_token = st.secrets["HF_TOKEN"]
+    hf_token = st.secrets["HF_TOKEN"]
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_PATH,
         load_in_4bit=True,
         dtype=torch.bfloat16,
         device_map="auto",
-        #use_auth_token=hf_token
+        use_auth_token=hf_token
     )
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, use_auth_token=hf_token)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -100,69 +101,6 @@ if st.session_state.selected_persona is None:
             st.rerun()
 
 # --- TELA DE CHAT ---
-
-# else:
-#     persona = st.session_state.selected_persona
-#     st.title(f"Talking to {persona['name']}")
-#     st.caption(f"You are talking to the persona from the **{persona['department']}** department.")
-
-#     if st.button("← Back to Selection"):
-#         st.session_state.selected_persona = None
-#         st.session_state.messages = []
-#         st.rerun()
-
-#     # STEP 1: This part is responsible for DRAWING the chat on the screen
-#     # It reads the history and draws EACH message.
-#     for message in st.session_state.messages:
-#         with st.chat_message(message["role"]):
-#             st.markdown(message["content"])
-
-#     # STEP 2: This part takes care of the LOGIC only, without drawing anything directly.
-#     if prompt := st.chat_input("What is your question?"):
-#         # Adds the user's message to the state (without drawing)
-#         st.session_state.messages.append({"role": "user", "content": prompt})
-
-#         # Generates the AI response
-#         with st.spinner("Thinking..."):
-#             #conversation_history = ""
-#             #for message in st.session_state.messages[:-1]: # Pega todas as mensagens, exceto a última (a atual)
-#             #    role = "User" if message["role"] == "user" else persona['name']
-#             #    conversation_history += f"{role}: {message['content']}\n"
-
-#             chat_prompt_text = f"""
-# Role:
-# You are NOT an AI assistant. You ARE {persona['name']}. Answer from their first-person perspective.
-# Persona Profile:
-# - Name: {persona['name']}
-# - Age: {persona['age']}
-# - Department: {persona['department']}
-# - Life Story & Personality: {persona['narrative_persona']}
-
-## --- CONVERSATION HISTORY ---
-## {conversation_history}
-## --- END OF HISTORY ---
-
-# User Question:
-# {prompt}
-
-# Answer as {persona['name']}:
-# """
-#             inputs = tokenizer(chat_prompt_text, return_tensors="pt").to(model.device)
-#             outputs = model.generate(
-#                 **inputs,
-#                 max_new_tokens=500,
-#                 temperature=0.6,
-#                 do_sample=True,
-#                 pad_token_id=tokenizer.eos_token_id
-#             )
-#             response_text = tokenizer.decode(outputs[0][len(inputs["input_ids"][0]):], skip_special_tokens=True).strip()
-
-#         # Adiciona a resposta do assistente ao estado (sem desenhar)
-#         st.session_state.messages.append({"role": "assistant", "content": response_text})
-
-#         # ETAPA 3: Força a re-execução do script. Agora o loop da ETAPA 1
-#         # vai desenhar as novas mensagens que acabamos de adicionar.
-#         st.rerun()
 
 else:
     persona = st.session_state.selected_persona
